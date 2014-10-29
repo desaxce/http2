@@ -1,4 +1,4 @@
-all: http2.pdf
+all: experiments.pdf
 
 %.pdf: %.tex
 	pdflatex $^
