@@ -1,3 +1,6 @@
+% TODO: How does domain sharding fit in this article ?
+% TODO: We should put some interesting figures about the improvement of going to HTTP/2 function of the number of requests on your webpage
+
 % Change the title to something that really looks like an article
 \title{Studying the performances of HTTP/2}
 \author{
@@ -15,7 +18,7 @@
 	\normalsize
 		\texttt{@orange.com}
 }
-\date{\today}
+%\date{\today}
 
 \documentclass[10pt,aps,showpacs,nofootinbib,superscriptaddress,eqsecnum,prd,showkeys,twocolumn,notitlepage]{article}
 \usepackage[paper=a4paper, dvips, top=1.5cm, left=1.5cm, right=1.5cm, foot=1cm, bottom=1.5cm]{geometry}
@@ -25,40 +28,38 @@
 \usepackage{dcolumn}
 \usepackage{hyperref}
 
-\begin{document}
+	\begin{document}
 
 \maketitle
 
-\begin{center}
 \begin{abstract}
-Your abstract
+% TODO: Make a short recap of the results of the article
 \end{abstract}
-\end{center}
 
 \section{Introduction}
-Here is the first sentence of my document.
-Here is my second sentence.
+% TODO: Make the changes from peers edits course "Writing in the Sciences"
+Nowadays, more and more people surf the Internet on personal computers or other devices. In fact, the last decade has seen a skyrocketing growth in the sales of mobile devices massively contributing to our daily browsing. While it is true that the Web services become better and richer every day, it has a repercussion on page loading times. Indeed, in the late nineties, webpages were only made of text, with some color if you were lucky; but nowadays you deal with interactive webpages displaying hundreds of pictures and running multiple scripts. Every keystroke, every mouse movement is detected and impacts the rendering of the webpage. Of course this has a cost, mainly because the traffic between the user and the server hosting the website gets really bulky.
 
-After a paragraph break, I start a new sentence.
-I can put just
-one
-word per
-line if I want to do so.
-It makes absolutely no difference to LATEX at all.
+However, the HyperText Transfer Protocol (HTTP) that was designed in the mid-nineties to communicate between browsers and Web servers has remained the same throughout the years. This protocol does not scale well with the growing number and size of requests needed to display a webpage. That is why the Internet Engineering Task Force(IETF) is in the process of standardizing a new version of HTTP, called HTTP/2 (what a surprise!). Draft versions of this protocol are already available for testing purposes, so 2015 should see the birth of HTTP/2.
 
-\paragraph{Outline}
+This new version brings along various improvements: multiplexing of requests (not limited to one request at a time), compression, increased security, etc. This study aims at analyzing these features and comparing the performances of HTTP/2 with HTTP. To achieve that, we computed the page loading times of a wide range of websites using the two versions of the protocol; also we experimented on both wired and mobile networks to understand the influence of the network characteristics on page loading times.
 
-\section{First part}
+The results of this study are not categorical regarding the perks of HTTP/2: although an overall 20\% improvement on page loading times was noticed, some webpages loaded faster than others. We were able to understand why, and came up with 'Best Practices' that describe how to set up a Web server to make the most out of HTTP/2. Using these guidelines, a Web server can serve its content with up to 50\% page loading time improvements. This unfortunately does not hold for mobile networks due to the lossy character of the connection.
 
-\section{Second part}
+%\paragraph{Outline}
 
-\section{Third part}
+\section{Limitations of HTTP/1.1}
 
-\section{Fourth part}
+\section{HTTP/2 and its new features}
+% TODO: Add the future RFCs of HTTP/2 and HPACK to the bibliography
 
-\section{Fifth part}
+\section{Set-up of our experiments}
+\paragraph{Limitations}
+Our experiments were only on static webpages. Also we did not use an exhaustive number of websites (although we were careful enough to pick the most consulted one on mobile).
 
-\section{Sixth part: Conclusion}
+\section{Experimental results}
+
+\section{Conclusion -- Future work}
 
 \paragraph{Acknowledgments}
 
