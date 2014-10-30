@@ -1,7 +1,12 @@
 all: experiments.pdf
 
-%.pdf: %.tex
-	pdflatex $^
+%.pdf: %.tex %.bbl
+	pdflatex $<
+	pdflatex $<
+
+%.bbl: %.tex 
+	pdflatex $<
+	bibtex $*
 
 .PHONY: clean
 
@@ -10,3 +15,4 @@ clean:
 	rm -rf *.log
 	rm -rf *.aux
 	rm -rf *.out
+	rm -rf *.blg
