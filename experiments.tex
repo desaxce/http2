@@ -1,10 +1,16 @@
 \documentclass[12pt, notitlepage]{article}
-\usepackage{url}
-\usepackage{amssymb}
+
+\usepackage{url}		% bibliography: inserting an url
+\usepackage{amssymb}	% usual
+\usepackage{listings}	% displaying bash command lines
+\usepackage{enumitem}	% no separation between items in itemize
+						% need to install texlive-extra
 \begin{document}
 \bibliographystyle{plain}
+
 \title{Experimenting on HTTP/2}
 \maketitle
+
 \begin{abstract}
 This short paper aims at comparing the performances of HTTP/1.1 and HTTP/2.
 The metric used to evaluate the performances is the Page Loading Time
@@ -24,7 +30,7 @@ versions of HTTP (mobile networks in particular).
 We analyze two versions of the HTTP protocol: HTTP/1.1 and HTTP/2.
 For both protocols, we study two variants: a cleartext one and an
 encrypted other. We end up with four protocols summarized as follows:
-\begin{itemize}
+\begin{itemize}[noitemsep]
 	\item[--] HTTP/1.1 cleartext $\to$ HTTP;
 	\item[--] HTTP/1.1 secure $\to$ HTTPS;
 	\item[--] HTTP/2 cleartext $\to$ h2c;
@@ -34,7 +40,7 @@ encrypted other. We end up with four protocols summarized as follows:
 \section{Setting up the experiments}
 
 To compare the page loading times we need to set up: 
-\begin{itemize}
+\begin{itemize}[noitemsep]
 \item[--] a server, to provide the webpages;
 \item[--] a client, to request and load them.
 \end{itemize}
@@ -42,58 +48,108 @@ To compare the page loading times we need to set up:
 The client and the server used throughout our experiments need to be the
 same for all protocols -- else our results would be biased. How should we
 choose them?
-The page loading times will depend on our choice of client and server. But
-since we are only considering the difference of PLTs between protocols, it
-does not matter here.
+% The page loading times will depend on our choice of client and server. But
+% since we are only considering the difference of PLTs between protocols, it
+% does not matter here.
 
-\subsection{Set up a server}
+\subsection{Setting up a server}
 
-The problem is that there is no server delivering real content on all four
-protocols.
+Why do we need to set up a server when there are thousands of webservers
+already delivering contents on the Internet? Well, the problem is that
+those servers only use three of the aforementioned protocols: HTTP, HTTPS
+and h2. But h2c is never used.
 % not even nghttp2.org (nghttp2 by Tatsuhiro) because he is using a proxy
 % maybe check http2rulez.com --> they might have a service running on all
 % four of them protocols.
-That is why we need to setup a server which will serve content on the 
-four protocols. But we still have to choose which content we want to 
-deliver. We decided to the most consulted websites on Alexa~\cite{alexa} 
-and cloned the main pages (Google, Facebook, Youtube, etc) on our own 
-machine.
+That is why we need to setup a server that will serve content on the 
+four protocols. 
 % using ScrapBook
 % Some content that were cloned do not reflect real loading of webpages:
 % for instance loading the Facebook login page has nothing to do with
 % loading a Facebook wall.
-
-Also on this machine we have to set up a server able to provide these
-contents on all four protocols. Looking at the list of available 
-implementations at~\cite{implem}, only one server fits these requirements:
+Looking at the list of available 
+implementations on~\cite{implem}, only one server fits these requirements:
 H2O~\cite{h2o}.\\
 
 % TODO: Create an Appendix explaining how to set up H2O on ubuntu Trusty
-If you wish to understand better how the setting up of H2O works, you
+If you wish to better understand how the setting up of H2O works, you
 can look at~\cite{h2o}. However, we already did all the job for you: a
-server is up and running at the IP address later, waiting for you to
+server is up and running at the IP address 161.106.2.57.
+But we still have to choose which content we want to 
+deliver: we decided to take the most consulted websites on
+Alexa~\cite{alexa} and to clone the main pages (Google, Facebook, Youtube,
+etc) on our own machine.
+Right now, this server is just waiting for you to
 retrieve its content. And the only thing you need to do that is a client.
 
-\subsection{Set up a client}
+\subsection{Setting up a client}
 
 The client is just a browser able to talk all four of the above 
-protocols. Currently, no browser provides HTTP/2 cleartext support; so we
-picked Chromium (which already talked HTTP, HTTPS and h2) and
-slightly modified it so that it could talk h2c (h2 without the TLS 
-layer).\\
+protocols. Currently, no browser provides h2c (HTTP/2 cleartext) support;
+so we picked Chromium (which already talked HTTP, HTTPS and h2) and
+slightly modified it so that it could talk h2c.\\
 
+\newpage
 Here again, no need to build Chromium yourself, because we have the
-modified binaries available at ~\cite{chromium}. Feel free to download and
-install this package on your latest Ubuntu version (for any other OS, we 
-do not have the executables yet).
+modified binaries available at~\cite{chromium}. Feel free to download and
+install this package on your latest Ubuntu version (no other OS support at 
+the moment). Here is how you can make it work:
+\begin{lstlisting}[language=bash]
+$ cd my/favorite/workspace 
+$ git clone https://github.com/desaxce/chromium 
+$ cd chromium 
+$ tar -jxvf chromium.tar.bz2 
+$ cd chromium-browser 
+$ chmod a+x chromium-browser nacl_helper nacl_irt_x86_64.nexe 
+$ sudo chown root:root chrome_sandbox 
+$ sudo chmod 4755 chrome_sandbox 
+$ export CHROME__DEVEL__SANDBOX="$PWD/chrome_sandbox"
+\end{lstlisting}
+
+Then you can check if Chromium works by doing: 
+\begin{lstlisting}[language=bash]
+$ ./chromium-browser
+\end{lstlisting}
 
 \section{Tool for experimenting}
-
+% Installation for Ubuntu Trusty Tahr only
 The tool to test the page load time performances is available at
-~\cite{load_times}. All you need to do is to clone this repository and
-to use the utility in it. For instance you can try: 
-./test --ip later -s 30 -t 1 -r leopard.html. Be careful, if you are
-behind a proxy some protocols might not be authorized (typically h2c).
+~\cite{load_times}. Go to the same workplace where you cloned chromium
+and clone this other repository with the following command line: 
+\begin{lstlisting}[language=bash]
+  $ git clone https://github.com/desaxce/load_times
+  $ sudo apt-get install build-essential gnuplot gnuplot-x11
+\end{lstlisting}
+\vspace*{0.5cm}
+
+Now you are all set. You can try: 
+\begin{lstlisting}[language=bash]
+$ make
+$ ./test --ip 161.106.2.57 -s 30 -t 1 -r leopard.html
+\end{lstlisting}
+
+\vspace*{0.5cm}
+This will: 
+\begin{itemize}[noitemsep]
+\item[--] retrieve the webpage leopard.html at the address 
+161.106.2.57;
+\item[--] wait exactly 30 seconds for the page to load;
+\item[--] request the webpage exactly one time for each\footnote{If you are
+behind a proxy some protocols might be filtered (typically h2c)}
+protocol.
+\end{itemize}
+
+The results are written to 0.0.default.161.106.2.57.txt ("0.0" stands for
+0\% delay and 0\% packet loss: those are parameters you can change). To
+compare the page loading times, you simply have to execute:
+\begin{lstlisting}[language=bash]
+$ ./hist_total.gnu 0.0.default.161.106.2.57.txt
+\end{lstlisting}
+For more information about this small utility type:
+\begin{lstlisting}[language=bash]
+$ ./test
+\end{lstlisting}
+\newpage
 \bibliography{references}
 \end{document}
 

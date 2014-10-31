@@ -3,6 +3,7 @@ all: experiments.pdf
 %.pdf: %.tex %.bbl
 	pdflatex $<
 	pdflatex $<
+	evince $@
 
 %.bbl: %.tex 
 	pdflatex $<
