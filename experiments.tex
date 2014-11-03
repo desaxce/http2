@@ -1,10 +1,16 @@
 \documentclass[12pt, notitlepage]{article}
 
+\usepackage{color}		% use colors
 \usepackage{url}		% bibliography: inserting an url
 \usepackage{amssymb}	% usual
 \usepackage{listings}	% displaying bash command lines
 \usepackage{enumitem}	% no separation between items in itemize
 						% need to install texlive-extra
+
+\lstset{
+	language=bash,
+	}
+
 \begin{document}
 \bibliographystyle{plain}
 
@@ -94,7 +100,7 @@ Here again, no need to build Chromium yourself, because we have the
 modified binaries available at~\cite{chromium}. Feel free to download and
 install this package on your latest Ubuntu version (no other OS support at 
 the moment). Here is how you can make it work:
-\begin{lstlisting}[language=bash]
+\begin{lstlisting}
 $ cd my/favorite/workspace 
 $ git clone https://github.com/desaxce/chromium 
 $ cd chromium 
@@ -107,7 +113,7 @@ $ export CHROME__DEVEL__SANDBOX="$PWD/chrome_sandbox"
 \end{lstlisting}
 
 Then you can check if Chromium works by doing: 
-\begin{lstlisting}[language=bash]
+\begin{lstlisting}
 $ ./chromium-browser
 \end{lstlisting}
 
@@ -116,14 +122,14 @@ $ ./chromium-browser
 The tool to test the page load time performances is available at
 ~\cite{load_times}. Go to the same workplace where you cloned chromium
 and clone this other repository with the following command line: 
-\begin{lstlisting}[language=bash]
+\begin{lstlisting}
   $ git clone https://github.com/desaxce/load_times
   $ sudo apt-get install build-essential gnuplot gnuplot-x11
 \end{lstlisting}
 \vspace*{0.5cm}
 
 Now you are all set. You can try: 
-\begin{lstlisting}[language=bash]
+\begin{lstlisting}
 $ make
 $ ./test --ip 161.106.2.57 -s 30 -t 1 -r leopard.html
 \end{lstlisting}
@@ -142,13 +148,41 @@ protocol.
 The results are written to 0.0.default.161.106.2.57.txt ("0.0" stands for
 0\% delay and 0\% packet loss: those are parameters you can change). To
 compare the page loading times, you simply have to execute:
-\begin{lstlisting}[language=bash]
+\begin{lstlisting}
 $ ./hist_total.gnu 0.0.default.161.106.2.57.txt
 \end{lstlisting}
-For more information about this small utility type:
-\begin{lstlisting}[language=bash]
+For more information about this small utility, type:
+\begin{lstlisting}
 $ ./test
 \end{lstlisting}
+
+\newpage
+
+\section{Results}
+I cloned the following websites:
+\begin{itemize}[noitemsep]
+	\item[--] google.com
+	\item[--] youtube.com
+	\item[--] yahoo.com
+	\item[--] baidu.com
+	\item[--] wikipedia.org
+	\item[--] amazon.com
+	\item[--] qq.com
+	\item[--] taobao.com
+	\item[--] sina.com.cn
+	\item[--] hao123.com
+	\item[--] weibo.com
+	\item[--] yahoo.co.jp
+	\item[--] yandex.ru
+	\item[--] tmall.com
+	\item[--] ebay.com
+	\item[--] bing.com
+	\item[--] sohu.com
+\end{itemize}
+And ran my experiments on these websites over a simulated network with 
+various network characteristics (delay and losses).
+Here are some graphs representing the page loading times of several
+websites using one of the four protocols each time:
 \newpage
 \bibliography{references}
 \end{document}
