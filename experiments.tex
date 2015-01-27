@@ -18,20 +18,16 @@
 \maketitle
 
 \begin{abstract}
-This short paper aims at comparing the performances of HTTP/1.1 and HTTP/2.
+This short paper aims at explaining at how to compare the performances
+of HTTP/1.1 and HTTP/2.
 The metric used to evaluate the performances is the Page Loading Time
 (PLT) as defined in ~\cite{w3c}.
-To sum it up, the PLT is the time elapsed between the moment the user
-enters a URL in her search bar and the moment the webpage requested is
-fully displayed in the browser window. We also try to understand how the
-network characteristics influence the page loading times on these two
-versions of HTTP (mobile networks in particular).
+To sum it up, the PLT is the time elapsed between the moment clients
+enter a URL in their search bar and the moment the webpage requested is
+fully displayed in the browser window.
 \end{abstract}
 
 \section{Introduction}
-
-% TODO: Introduce what is HTTP, its limits and the reason why HTTP/2
-%		was introduced
 % Only support of Ubuntu Trusty in the experiments
 We analyze two versions of the HTTP protocol: HTTP/1.1 and HTTP/2.
 For both protocols, we study two variants: a cleartext one and an
@@ -43,8 +39,8 @@ encrypted other. We end up with four protocols summarized as follows:
 	\item[--] HTTP/2 secure $\to$ h2.
 \end{itemize}
 \newpage
-\section{Setting up the experiments}
 
+\section{Setting up the experiments}
 To compare the page loading times we need to set up: 
 \begin{itemize}[noitemsep]
 \item[--] a server, to provide the webpages;
@@ -54,25 +50,14 @@ To compare the page loading times we need to set up:
 The client and the server used throughout our experiments need to be the
 same for all protocols -- else our results would be biased. How should we
 choose them?
-% The page loading times will depend on our choice of client and server. But
-% since we are only considering the difference of PLTs between protocols, it
-% does not matter here.
 
 \subsection{Setting up a server}
-
 Why do we need to set up a server when there are thousands of webservers
 already delivering contents on the Internet? Well, the problem is that
 those servers only use three of the aforementioned protocols: HTTP, HTTPS
 and h2. But h2c is never used.
-% not even nghttp2.org (nghttp2 by Tatsuhiro) because he is using a proxy
-% maybe check http2rulez.com --> they might have a service running on all
-% four of them protocols.
 That is why we need to setup a server that will serve content on the 
 four protocols. 
-% using ScrapBook
-% Some content that were cloned do not reflect real loading of webpages:
-% for instance loading the Facebook login page has nothing to do with
-% loading a Facebook wall.
 Looking at the list of available 
 implementations on~\cite{implem}, only one server fits these requirements:
 H2O~\cite{h2o}.\\
@@ -80,7 +65,7 @@ H2O~\cite{h2o}.\\
 % TODO: Create an Appendix explaining how to set up H2O on ubuntu Trusty
 If you wish to better understand how the setting up of H2O works, you
 can look at~\cite{h2o}. However, we already did all the job for you: a
-server is up and running at the IP address 161.106.2.57.
+server is up and running at the IP address 161.106.2.57 (h2-14).
 But we still have to choose which content we want to 
 deliver: we decided to take the most consulted websites on
 Alexa~\cite{alexa} and to clone the main pages (Google, Facebook, Youtube,
@@ -100,22 +85,15 @@ Here again, no need to build Chromium yourself, because we have the
 modified binaries available at~\cite{chromium}. Feel free to download and
 install this package on your latest Ubuntu version (no other OS support at 
 the moment). Here is how you can make it work:
-\begin{lstlisting}
-$ cd my/favorite/workspace 
-$ git clone https://github.com/desaxce/chromium 
-$ cd chromium 
-$ tar -jxvf chromium.tar.bz2 
-$ cd chromium-browser 
-$ chmod a+x chromium-browser nacl_helper nacl_irt_x86_64.nexe 
-$ sudo chown root:root chrome_sandbox 
-$ sudo chmod 4755 chrome_sandbox 
-$ export CHROME__DEVEL__SANDBOX="$PWD/chrome_sandbox"
-\end{lstlisting}
+\textbf{sudo dpkg -i name\_\_of\_\_the\_\_package.deb}
+(You might also have to \textbf{sudo apt-get build-dep chromium-browser}).\\
 
-Then you can check if Chromium works by doing: 
-\begin{lstlisting}
-$ ./chromium-browser
-\end{lstlisting}
+If you want to use direct clear text HTTP/2 (h2c) with Chromium, use the
+following command line options:
+\textbf{chromium-browser --enable-spdy4 --use-spdy=no-ssl}
+This should will launch Chromium with only h2c activated. You can
+check out the status of HTTP/2 connections at chrome://net-internals/\#spdy
+(SPDY is the name of HTTP/2 inside the Chromium browser).
 
 \section{Tool for experimenting}
 % Installation for Ubuntu Trusty Tahr only
@@ -183,6 +161,65 @@ And ran my experiments on these websites over a simulated network with
 various network characteristics (delay and losses).
 Here are some graphs representing the page loading times of several
 websites using one of the four protocols each time:
+
+\clearpage
+\section{Appendix A - Building Chromium from source}
+
+First install the following Debian repository
+\footnote{https://launchpad.net/~saiarcot895/+archive/ubuntu/chromium-dev/+packages}.
+Second, dpkg-source chromium-browser.
+Third, install the depot tools from the Chromium projects
+\footnote{http://www.chromium.org/developers/how-tos/install-depot-tools}.
+
+\subsection{HTTP/2 in the clear}
+In order to have a Chromium version with clear text HTTP/2, simply
+modify the file in src/chrome/browser/io\_thread.cc and change the lines where
+the option kDisableSSL is used:
+
+\textbf{\} else if (option == kDisableSSL) \{}\\
+\hspace*{1cm}\textbf{globals\_\_$\rightarrow$spdy\_\_default\_\_protocol.set(net::kProtoSPDY31);}\\
+
+\textit{into}\\
+
+\textbf{\} else if (option == kDisableSSL) \{}\\
+\hspace*{1cm}{\textbf{globals\_\_$\rightarrow$spdy\_\_default\_\_protocol.set(net::kProtoSPDY4\_\_14);}\\
+
+
+\subsection{Logging the loading times}
+To store the times, you have to modify two files. First,
+src/third\_\_party/WebKit/Source/core/loader/DocumentLoadTiming.cpp:
+add the line\\
+\hspace*{1cm}\textbf{fprintf(stderr, "setNavigationStart = \%lf$\backslash$n", navigationStart);}\\
+in the method named setNavigationStart.\\
+
+\hspace*{-0.7cm}And also add the method:\\
+\textbf{void DocumentLoadTiming::markLoadEventEnd() \{}\\
+\hspace*{1cm}\textbf{m\_loadEventEnd = monotonicallyIncreasingTime();}\\
+\hspace*{1cm}\textbf{fprintf(stderr, "markLoadEventEnd = \%lf$\backslash$n", loadEventEnd());}\\
+\textbf{\}}\\ 
+
+Second, src/third\_\_party/WebKit/Source/core/loader/DocumentTiming.h:
+Change the prototype of the method markLoadEventEnd to
+\textbf{void markLoadEventEnd();}\\
+
+
+
+You can browse the Chromium source code at
+\url{https://code.google.com/p/chromium/codesearch#} for more informations.
+
+\section{Appendix B - Machines available}
+
+\hspace*{0.6cm}For local tests (Issy-les-Moulineaux - Yiping Chen): via SSH, \textbf{@:} 172.20.36.138, \textbf{login:} smcd, \textbf{pwd:} smcd.\\
+
+For global tests (Val-de-Reuil - Frédéric Fieau): via SSH, \textbf{@:} 161.106.2.57, \textbf{login:} root, \textbf{pwd:} HFT:-p.\\
+\textbf{login:} debianuser, \textbf{pwd:} DEB:-p.\\
+
+To connect on the outside machine, you need to add the following line in the config file in $\sim$/.ssh:\\
+\textbf{ProxyCommand nc -x Goodway:1080 \%h \%p}
+
+\section{Appendix C - Scripting and tests}
+All available at \url{https://github.com/desaxce/load\_\_times}
+
 \newpage
 \bibliography{references}
 \end{document}
