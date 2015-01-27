@@ -18,7 +18,7 @@
 \maketitle
 
 \begin{abstract}
-This short paper aims at explaining at how to compare the performances
+This short paper aims at explaining how to compare the performances
 of HTTP/1.1 and HTTP/2.
 The metric used to evaluate the performances is the Page Loading Time
 (PLT) as defined in ~\cite{w3c}.
@@ -138,32 +138,14 @@ $ ./test
 
 \section{Results}
 I cloned the following websites:
-\begin{itemize}[noitemsep]
-	\item[--] google.com
-	\item[--] youtube.com
-	\item[--] yahoo.com
-	\item[--] baidu.com
-	\item[--] wikipedia.org
-	\item[--] amazon.com
-	\item[--] qq.com
-	\item[--] taobao.com
-	\item[--] sina.com.cn
-	\item[--] hao123.com
-	\item[--] weibo.com
-	\item[--] yahoo.co.jp
-	\item[--] yandex.ru
-	\item[--] tmall.com
-	\item[--] ebay.com
-	\item[--] bing.com
-	\item[--] sohu.com
-\end{itemize}
+google.com, youtube.com, yahoo.com, baidu.com, wikipedia.org, amazon.com, qq.com, taobao.com, sina.com.cn, hao123.com, weibo.com, yahoo.co.jp, yandex.ru, tmall.com, ebay.com, bing.com, sohu.com.\\
+
 And ran my experiments on these websites over a simulated network with 
 various network characteristics (delay and losses).
 Here are some graphs representing the page loading times of several
 websites using one of the four protocols each time:
 
-\clearpage
-\section{Appendix A - Building Chromium from source}
+\section{Building Chromium from source}
 
 First install the following Debian repository
 \footnote{https://launchpad.net/~saiarcot895/+archive/ubuntu/chromium-dev/+packages}.
@@ -207,7 +189,7 @@ Change the prototype of the method markLoadEventEnd to
 You can browse the Chromium source code at
 \url{https://code.google.com/p/chromium/codesearch#} for more informations.
 
-\section{Appendix B - Machines available}
+\section{Machines available}
 
 \hspace*{0.6cm}For local tests (Issy-les-Moulineaux - Yiping Chen): via SSH, \textbf{@:} 172.20.36.138, \textbf{login:} smcd, \textbf{pwd:} smcd.\\
 
@@ -217,8 +199,6 @@ For global tests (Val-de-Reuil - Frédéric Fieau): via SSH, \textbf{@:} 161.106
 To connect on the outside machine, you need to add the following line in the config file in $\sim$/.ssh:\\
 \textbf{ProxyCommand nc -x Goodway:1080 \%h \%p}
 
-\section{Appendix C - Scripting and tests}
-All available at \url{https://github.com/desaxce/load\_\_times}
 
 \newpage
 \bibliography{references}
